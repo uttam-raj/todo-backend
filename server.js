@@ -2,32 +2,57 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectToMongo = require("./utils/db");
-const authRouter = require('./routes/authRouter');
-const todoRouter = require('./routes/todoRouter');
-const settingsRoutes = require('./routes/settingsRoutes')
-const errorMiddleware = require('./Middlewares/error-middleware');
+
+const authRouter = require("./routes/authRouter");
+const todoRouter = require("./routes/todoRouter");
+const settingsRoutes = require("./routes/settingsRoutes");
+const errorMiddleware = require("./Middlewares/error-middleware");
 
 const app = express();
 
-const corsOptions = {
-    origin:"https://todomeru.netlify.app/",
-    methods: "GET, POST, PUT, DELETE, PATCH, HEAD",
+/* ================= CORS CONFIG ================= */
+const allowedOrigins = [
+  "http://localhost:5173", // Local frontend (Vite)
+  "https://todomeru.netlify.app" // Deployed frontend (Netlify)
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (Postman, mobile apps, etc.)
+      if (!origin) return callback(null, true);
+
+      if (!allowedOrigins.includes(origin)) {
+        return callback(new Error("Not allowed by CORS"));
+      }
+
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD"],
     credentials: true,
-}
-app.use(cors(corsOptions));
+  })
+);
 
-app.use(express.json()); //It is the midlleware while parse the json data of request body before send the response
+/* ================= MIDDLEWARE ================= */
+app.use(express.json());
 
-app.use("/api/auth",authRouter);
+/* ================= ROUTES ================= */
+app.use("/api/auth", authRouter);
 app.use("/api/todo", todoRouter);
-app.use("/api/settings",settingsRoutes);
+app.use("/api/settings", settingsRoutes);
 
+/* ================= ERROR HANDLER ================= */
+app.use(errorMiddleware);
 
-app.use(errorMiddleware);  //It is used to handle erroer and it is a error handler middleware.
+/* ================= SERVER START ================= */
+const PORT = process.env.PORT || 5000;
 
-port=process.env.PORT;
-connectToMongo().then(()=>{
-    app.listen(port,()=>{
-        console.log(`Server is running at port: ${port}`);
-    })
-});
+connectToMongo()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Server is running at port: ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err);
+  });
