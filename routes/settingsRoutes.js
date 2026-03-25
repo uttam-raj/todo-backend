@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authenticate = require("../middlewares/authMiddleware");
+const authenticate = require("../Middlewares/authMiddleware");
 const {getUserProfile,updateProfile,deleteAccount,} = require("../controllers/settingsController");
 
 // Fetch profile
