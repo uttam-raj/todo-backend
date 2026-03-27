@@ -13,7 +13,7 @@ const app = express();
 /* ================= CORS CONFIG ================= */
 const allowedOrigins = [
   "http://localhost:5173", // Local frontend (Vite)
-  "https://todomeru.netlify.app" // Deployed frontend (Netlify)
+  "https://todomeru.netlify.app/" // Deployed frontend (Netlify)
 ];
 
 app.use(
