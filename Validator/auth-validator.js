@@ -19,18 +19,16 @@ const signupSchema = loginSchema.extend({
 
     phone: z
     .string({required_error:'Phone number is required'})
-    .min(10, "Phone must be at least 10 digits"),
+    .regex(/^[0-9]{10}$/, "Phone must be exactly 10 digits"),
 
   
-    gender: z
-    .enum(["male", "female", "other"], "Gender must be male, female, or other"),
+    gender: z.enum(["male", "female", "other"], {
+    errorMap: () => ({ message: "Gender must be male, female, or other" }),
+  }),
 
-    isVerified: z
-    .boolean().optional(), // optional because it's usually set by backend
-    otp: z
-    .string().optional(),
-    otpExpirationTime: z
-    .coerce.date().optional(),
+    isVerified: z.boolean().optional(), // optional because it's usually set by backend
+    otp: z.string().optional(),
+    otpExpirationTime: z.coerce.date().optional(),
 })
 
 module.exports={loginSchema,signupSchema};

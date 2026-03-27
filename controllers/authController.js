@@ -62,7 +62,14 @@ const register = async (req, res, next) => {
       otpExpirationTime,
     });
 
-    await sendOTPEmail(email, otp);
+    try {
+  await sendOTPEmail(email, otp);
+} catch (error) {
+  return res.status(500).json({
+    message: "OTP sending failed",
+    error: error.message,
+  });
+}
 
     return res.status(201).json({
       message: "userCreated",
@@ -82,7 +89,7 @@ const verifyOtp = async (req, res) => {
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    if (user.otp !== otp || user.otpExpirationTime < Date.now()) {
+    if (user.otp.toString() !== otp.toString() || user.otpExpirationTime < Date.now()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
